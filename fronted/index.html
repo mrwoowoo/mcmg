@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Woo Woo服务器管理</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.21.1/dist/axios.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/mdui@1.0.1/dist/css/mdui.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mdui@1.0.1/dist/js/mdui.js"></script>
+    <style>
+        html,body{
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        h1{
+            text-align: center;
+        }
+        .root{
+            height: 100%;
+            overflow: hidden;
+        }
+        #log{
+            display: block;
+            height: 60%;
+            width: 100%;
+            margin: auto;
+            background-color: black;
+            color: white;
+            display: block;
+            resize: none;
+        }
+        .button{
+            text-align: center;
+
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="mdui-container root">
+        <div class="nav">
+            <h1 class="mdui-text-color-blue-a200">Woo Woo服务器管理</h1>
+        </div>
+        <textarea id="log" disabled>{{log_}}</textarea>
+        <input class="mdui-textfield-input" type="text" v-model="cmd" placeholder="Command"/>
+        <div class="button">
+            <button class="mdui-btn mdui-btn-raised" @click="command_()">执行</button>
+            <button class="mdui-btn mdui-btn-raised" @click="start_()">开始</button>
+            <button class="mdui-btn mdui-btn-raised" @click="stop_()">关闭</button>
+            <button class="mdui-btn mdui-btn-raised" @click="kill_()">强制关闭</button>
+        </div>
+    </div>
+    <script>
+        var vm = new Vue({
+            el: '#app',
+            data(){
+                return {
+                    log_: '',
+                    cmd: ''
+                }
+            },
+            methods:{
+                getlog() {
+                    this_ = this
+                    axios.get("/log")
+                    .then(
+                        function(response){
+                            if(response.data){
+                                this_.log_ += response.data
+                            }
+                        }
+                    )
+                },
+                start_() {
+                    axios.get("/start")
+                    .then(response => (mdui.alert(response.data)))
+                },
+                stop_() {
+                    axios.get("/stop")
+                    .then(response => (mdui.alert(response.data)))
+                },
+                kill_() {
+                    axios.get("/kill")
+                    .then(response => (mdui.alert(response.data)))
+                },
+                command_() {
+                    axios.get('/cmd?cmd='+this.cmd)
+                    .then(response => (mdui.alert(response.data)))
+                }
+            },
+            mounted(){
+                this.timer = setInterval(this.getlog, 1000)
+            }
+        })
+    </script>
+</body>
+</html>
